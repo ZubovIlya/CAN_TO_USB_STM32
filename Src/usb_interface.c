@@ -8,9 +8,8 @@
 
 // ANSWER
 
-uint8_t usb_iface_answer_buff;
-#define USB_IFACE_ANSWER_OK 0xDD
-#define USB_IFACE_ANSWER_REPEAT 0xDB
+const uint8_t usb_iface_answer_ok = 0xDD;
+const uint8_t usb_iface_answer_repeat = 0xDB;
 
 //	INPUT
 
@@ -18,11 +17,11 @@ uint8_t usb_iface_answer_buff;
 uint8_t usb_iface_input_buff[USB_IFACE_INPUT_BUFF_SIZE];
 
 enum
-uint8_t  {	USB_IFACE_INPUT_START_STATE
-				,USB_IFACE_INPUT_DATA_STATE
-				,USB_IFACE_INPUT_CRC_STATE
-				,USB_IFACE_INPUT_ANSWER_STATE}
-		usb_iface_input_state = USB_IFACE_INPUT_START_STATE;
+uint8_t  {	USB_IFACE_INPUT_STATE_START
+				,USB_IFACE_INPUT_STATE_DATA
+				,USB_IFACE_INPUT_STATE_CRC
+				,USB_IFACE_INPUT_STATE_ANSWER}
+		usb_iface_input_state = USB_IFACE_INPUT_STATE_START;
 uint8_t usb_iface_input_length = 0;
 uint8_t usb_iface_input_counter = 0;
 uint8_t usb_iface_input_crc = 0;
@@ -51,13 +50,11 @@ void usb_analyze()
 		switch(usb_ok_repeat_flag)
 		{
 		case USB_OK:
-			usb_iface_answer_buff = USB_IFACE_ANSWER_OK;
-			CDC_Transmit_HS(&usb_iface_answer_buff, 1);
+			CDC_Transmit_HS(&usb_iface_answer_ok, 1);
 			usb_ok_repeat_flag=USB_NONE;
 			break;
 		case USB_REPEAT:
-			usb_iface_answer_buff = USB_IFACE_ANSWER_REPEAT;
-			CDC_Transmit_HS(&usb_iface_answer_buff, 1);
+			CDC_Transmit_HS(&usb_iface_answer_repeat, 1);
 			usb_ok_repeat_flag=USB_NONE;
 			break;
 		default :
@@ -84,13 +81,13 @@ void recv_mesg (uint8_t *buf, uint32_t Len)
 	for (uint8_t i = 0; i<Len;i++)
 	switch (usb_iface_input_state)
 	{
-		case USB_IFACE_INPUT_START_STATE:
+		case USB_IFACE_INPUT_STATE_START:
 			if ((buf[i] & USB_IFACE_START_BYTE_MASK) == USB_IFACE_START_BYTE)
 			{
 				usb_iface_input_length = buf[i] & USB_IFACE_LENGHT_MASK;
 				usb_iface_input_crc = 0;
 				usb_iface_input_counter = 0;
-				usb_iface_input_state = USB_IFACE_INPUT_DATA_STATE;
+				usb_iface_input_state = USB_IFACE_INPUT_STATE_DATA;
 				memset(usb_iface_input_buff,0,sizeof(uint8_t)*USB_IFACE_INPUT_BUFF_SIZE);
 			}
 			else
@@ -99,14 +96,14 @@ void recv_mesg (uint8_t *buf, uint32_t Len)
 				return;
 			}
 			break;
-		case USB_IFACE_INPUT_DATA_STATE:
+		case USB_IFACE_INPUT_STATE_DATA:
 			usb_iface_input_buff[usb_iface_input_counter] = buf[i];
 			usb_iface_input_crc ^= buf[i];
 			usb_iface_input_counter++;
 			if(usb_iface_input_counter==usb_iface_input_length)
-				usb_iface_input_state = USB_IFACE_INPUT_CRC_STATE;
+				usb_iface_input_state = USB_IFACE_INPUT_STATE_CRC;
 			break;
-		case USB_IFACE_INPUT_CRC_STATE:
+		case USB_IFACE_INPUT_STATE_CRC:
 			if (buf[i] == usb_iface_input_crc)
 			{
 				usb_ok_repeat_flag = USB_OK;
@@ -115,24 +112,24 @@ void recv_mesg (uint8_t *buf, uint32_t Len)
 				memcpy(usb_analyze_buff,usb_iface_input_buff,usb_iface_input_length);
 				usb_analyze_buff_length = usb_iface_input_length;
 				usb_analyze_buff_flag = USB_ANALYSE_HAVE_A_MESSAGE;
-				usb_iface_input_state = USB_IFACE_INPUT_START_STATE;
+				usb_iface_input_state = USB_IFACE_INPUT_STATE_START;
 			}
 			else
 			{
 				usb_ok_repeat_flag = USB_REPEAT;
-				usb_iface_input_state = USB_IFACE_INPUT_START_STATE;
+				usb_iface_input_state = USB_IFACE_INPUT_STATE_START;
 				return;
 			}
 			break;
-		case USB_IFACE_INPUT_ANSWER_STATE:
-			if (buf[i] == USB_IFACE_ANSWER_REPEAT)
+		case USB_IFACE_INPUT_STATE_ANSWER:
+			if (buf[i] == usb_iface_answer_repeat)
 			{
 				uint8_t result = USBD_BUSY;
 				while (result == USBD_BUSY)
 					result = CDC_Transmit_HS(usb_iface_output_buff,usb_iface_output_buff_size);
 			}
 			else
-				usb_iface_input_state = USB_IFACE_INPUT_START_STATE;
+				usb_iface_input_state = USB_IFACE_INPUT_STATE_START;
 	}
 }
 
@@ -147,5 +144,5 @@ void send_mesg (uint8_t *Buf, uint32_t Len)
 	uint8_t result = USBD_BUSY;
 	while (result == USBD_BUSY)
 		result = CDC_Transmit_HS(usb_iface_output_buff, usb_iface_output_buff_size);	//	PROFIT
-	usb_iface_input_state = USB_IFACE_INPUT_ANSWER_STATE;
+	usb_iface_input_state = USB_IFACE_INPUT_STATE_ANSWER;
 }
