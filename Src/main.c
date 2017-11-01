@@ -113,8 +113,8 @@ int main(void)
   while (1)
   {
   /* USER CODE END WHILE */
-		if (usb_analyze_buff_flag == USB_ANALYSE_HAVE_A_MESSAGE || usb_ok_repeat_flag != USB_NONE)
-						  usb_analyze();
+
+	usb_analyze();
   /* USER CODE BEGIN 3 */
 
   }

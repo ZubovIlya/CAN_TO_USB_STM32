@@ -55,6 +55,7 @@
 #endif
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_cdc.h"
+#include "usb_interface.h"
 /* USER CODE BEGIN INCLUDE */
 /* USER CODE END INCLUDE */
 
