@@ -1,0 +1,41 @@
+Open On-Chip Debugger 0.10.0-dev-00302-gc211ca5-dirty (2017-07-03-10:41)
+Licensed under GNU GPL v2
+For bug reports, read
+	http://openocd.org/doc/doxygen/bugs.html
+srst_only separate srst_nogate srst_open_drain connect_assert_srst
+Info : The selected transport took over low-level target control. The results might differ compared to plain JTAG/SWD
+adapter speed: 1800 kHz
+adapter_nsrst_delay: 100
+Info : clock speed 1800 kHz
+Info : STLINK v2 JTAG v28 API v2 SWIM v0 VID 0x0483 PID 0x3748
+Info : vid/pid are not identical: 0x0483/0x374B 0x0483/0x3748
+Info : using stlink api v2
+Info : Target voltage: 2.894451
+Info : STM32F429ZITx.cpu: hardware has 6 breakpoints, 4 watchpoints
+adapter speed: 1800 kHz
+STM32F429ZITx.cpu: target state: halted
+target halted due to debug-request, current mode: Thread 
+xPSR: 0x01000000 pc: 0x080032c0 msp: 0x20030000
+configuring PLL
+adapter speed: 4000 kHz
+** Programming Started **
+auto erase enabled
+Info : device id = 0x10036419
+Info : flash size = 2048kbytes
+STM32F429ZITx.cpu: target state: halted
+target halted due to breakpoint, current mode: Thread 
+xPSR: 0x61000000 pc: 0x20000046 msp: 0x20030000
+wrote 16384 bytes from file Debug/STM32_can_to_usb.elf in 0.650319s (24.603 KiB/s)
+** Programming Finished **
+** Verify Started **
+STM32F429ZITx.cpu: target state: halted
+target halted due to breakpoint, current mode: Thread 
+xPSR: 0x61000000 pc: 0x2000002e msp: 0x20030000
+STM32F429ZITx.cpu: target state: halted
+target halted due to breakpoint, current mode: Thread 
+xPSR: 0x61000000 pc: 0x2000002e msp: 0x20030000
+verified 14216 bytes in 0.168212s (82.532 KiB/s)
+** Verified OK **
+** Resetting Target **
+adapter speed: 1800 kHz
+shutdown command invoked
